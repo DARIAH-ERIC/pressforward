@@ -81,6 +81,16 @@ function pf_get_relationships_for_user( $relationship_type, $user_id ) {
 	return pressforward( 'utility.relate' )->get_relationships_for_user( $relationship_type, $user_id );
 }
 
+/**
+ * Generic function for getting relationships of a given type for a given item
+ *
+ * @param string $relationship_type
+ * @param int    $item_id
+ */
+function pf_get_relationships_for_item( $relationship_type, $item_id ) {
+    return pressforward( 'utility.relate' )->get_relationships_for_item( $relationship_type, $item_id );
+}
+
 //
 // "STAR"            //
 //

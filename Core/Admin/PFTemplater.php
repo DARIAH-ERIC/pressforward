@@ -3,6 +3,7 @@ namespace PressForward\Core\Admin;
 
 use PressForward\Interfaces\Templates as Templates;
 use PressForward\Interfaces\SystemUsers as SystemUsers;
+use WP_User;
 class PFTemplater {
 
 	public function __construct( Templates $template_factory, SystemUsers $users ) {
@@ -722,11 +723,27 @@ if ( $format === 'nomination' ) {
 					// Perhaps use http://twitter.github.com/bootstrap/javascript.html#popovers instead?
 					echo '<button class="btn btn-small itemInfobutton" data-toggle="tooltip" title="' . __( 'Info', 'pf' ) . '" id="info-' . $item['item_id'] . '-' . $infoPop . '" data-placement="' . $infoPop . '" data-class="info-box-popover' . $infoModalClass . '" data-title="" data-target="' . $item['item_id'] . '"><i class="icon-info-sign"></i></button>';
 
+                    $stars_by_item_id = pf_get_relationships_for_item('star', $id_for_comments);
+                    $count_star_admin = 0;
+                    $count_star_editor = 0;
+                    $count_star_contributor = 0;
+                    foreach ($stars_by_item_id as $res) {
+                        $user = new WP_User($res->user_id);
+                        foreach ($user->roles as $user_role) {
+                            switch ($user_role) {
+                                case "administrator": $count_star_admin++; break;
+                                case "editor": $count_star_editor++; break;
+                                case "contributor": $count_star_contributor++; break;
+                            }
+                        }
+                    }
+                    $count_star_all = $count_star_admin + $count_star_contributor + $count_star_editor;
+
 					if ( pf_is_item_starred_for_user( $id_for_comments, $user_id ) ) {
 						echo '<!-- item_id selected = ' . $item_id . ' -->';
-						echo '<button class="btn btn-small star-item btn-warning" data-toggle="tooltip" title="' . __( 'Star', 'pf' ) . '"><i class="icon-star"></i></button>';
+						echo '<button class="btn btn-small star-item btn-warning" data-toggle="tooltip" title="' . __( 'Star', 'pf' ) . '">'.$count_star_all.'<i class="icon-star"></i></button>';
 					} else {
-						echo '<button class="btn btn-small star-item" data-toggle="tooltip" title="' . __( 'Star', 'pf' ) . '"><i class="icon-star"></i></button>';
+						echo '<button class="btn btn-small star-item" data-toggle="tooltip" title="' . __( 'Star', 'pf' ) . '">'.$count_star_all.'<i class="icon-star"></i></button>';
 					}
 
 					// <a href="#" type="submit"  class="PleasePushMe"><i class="icon-plus"></i> Nominate</a>
@@ -809,7 +826,13 @@ if ( $format === 'nomination' ) {
 					}
 					?>
 				</div>
-
+                <p class="pubdate">
+                    <?php
+                    echo "Votes by Administrators: ".$count_star_admin."<br/>";
+                    echo "Votes by Editors: ".$count_star_editor."<br/>";
+                    echo "Votes by Contributors: ".$count_star_contributor."<br/>";
+                    ?>
+                </p>
 		<?php
 
 		if ( has_action( 'pf_comment_action_modal' ) ) {
