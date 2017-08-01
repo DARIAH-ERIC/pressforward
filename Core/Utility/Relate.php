@@ -77,7 +77,7 @@ class Relate implements HasActions {
 	 * @param string       $relationship_type
 	 * @param int          $item_id
 	 * @param int          $user_id
-	 * @param string value
+	 * @param string       $value
 	 * @return bool True on success
 	 */
 	function set_relationship( $relationship_type, $item_id, $user_id, $value ) {
@@ -203,6 +203,23 @@ class Relate implements HasActions {
 		return $rs;
 	}
 
+    /**
+     * Generic function for getting relationships of a given type for a given item
+     *
+     * @param string $relationship_type
+     * @param int    $item_id
+     */
+    function get_relationships_for_item( $relationship_type, $item_id ) {
+        $relationship = $this->relationships;
+        $relationship_type_id = pf_get_relationship_type_id( $relationship_type );
+
+        $rs = $relationship->get( array(
+            'relationship_type' => $relationship_type_id,
+            'item_id' => $item_id,
+        ) );
+        return $rs;
+    }
+
 	//
 	// "STAR"            //
 	//
@@ -276,6 +293,16 @@ class Relate implements HasActions {
 
 		return $rs;
 	}
+
+	function get_starred_numbers_for_item( $item_id, $format = 'raw') {
+	    $rs = pf_get_relationships_for_item('star', $item_id);
+
+        if ( 'simple' == $format ) {
+            $rs = wp_list_pluck( $rs, 'user_id' );
+        }
+
+        return $rs;
+    }
 
 	/**
 	 * A generalized function for setting/unsetting a relationship via ajax
