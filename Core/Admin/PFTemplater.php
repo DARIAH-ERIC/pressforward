@@ -732,7 +732,8 @@ if ( $format === 'nomination' ) {
                         foreach ($user->roles as $user_role) {
                             switch ($user_role) {
                                 case "administrator": $count_star_admin++; break;
-                                case "editor": $count_star_editor++; break;
+                                case "editor":
+                                case "editorialteam": $count_star_editor++; break;
                                 case "contributor": $count_star_contributor++; break;
                             }
                         }
