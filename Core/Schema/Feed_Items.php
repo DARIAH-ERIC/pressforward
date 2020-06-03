@@ -334,8 +334,11 @@ class Feed_Items implements HasActions, HasFilters {
 		}
 
 		$content_array = explode( ' ', strip_tags( $content ) );
-		$word_count    = count( $content_array );
-
+		if ( is_array( $content_array ) ) {
+			$word_count    = count( $content_array );
+		} else {
+			$word_count = 0;
+		}
 		return pressforward( 'controller.metas' )->update_pf_meta( $post_id, 'pf_feed_item_word_count', $word_count );
 	}
 
@@ -376,14 +379,14 @@ class Feed_Items implements HasActions, HasFilters {
 	 *
 	 * @since 3.4.5
 	 */
-	public function get_source_link( $post_id ) {
-		$url = pressforward( 'controller.metas' )->get_post_pf_meta( $post_id, 'pf_source_link' );
-		if ( empty( $url ) ) {
+	public function get_source_link( $post_id, $force = false ) {
+		$source_url = pressforward( 'controller.metas' )->get_post_pf_meta( $post_id, 'pf_source_link' );
+		if ( empty( $source_url ) || $force ) {
 			$url = pressforward( 'controller.metas' )->get_post_pf_meta( $post_id, 'item_link' );
+			$source_url = pressforward( 'controller.http_tools' )->resolve_a_url( $url );
+			pressforward( 'controller.metas' )->update_pf_meta( $post_id, 'pf_source_link', $source_url );
 			// pf_log($url);
 		}
-		$source_url = pressforward( 'controller.http_tools' )->resolve_a_url( $url );
-		pressforward( 'controller.metas' )->update_pf_meta( $post_id, 'pf_source_link', $source_url );
 		return $source_url;
 	}
 
@@ -562,6 +565,7 @@ class Feed_Items implements HasActions, HasFilters {
 		$parent = $feedObj['parent_feed_id'];
 		unset( $feedObj['parent_feed_id'] );
 		foreach ( $feedObj as $item ) {
+			$item['item_link'] = pressforward( 'controller.http_tools' )->resolve_a_url( $item['item_link'] );
 			$thepostscheck       = 0;
 			$thePostsDoubleCheck = 0;
 			$item_id             = $item['item_id'];

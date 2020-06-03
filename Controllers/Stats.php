@@ -1,6 +1,7 @@
 <?php
 namespace PressForward\Controllers;
 
+use stdClass;
 use WP_Ajax_Response;
 use WP_Error;
 use WP_Query;
@@ -241,7 +242,7 @@ class Stats {
 		$s  = "\n<li>";
 		$s .= $author['name'] . ' (' . $author['count'] . ')';
 		// var_dump(pressforward_stats()->gender_checker->test($author['name']) ); var_dump( pressforward_stats()->gender_checker->getPreviousMatchConfidence() ); die();
-		$s .= ' This author is likely ' . $author['gender'] . '. Confidence: ' . $author['gender_confidence'];
+		// $s .= ' This author is likely ' . $author['gender'] . '. Confidence: ' . $author['gender_confidence'];
 		$s .= '</li>';
 		return $s;
 	}

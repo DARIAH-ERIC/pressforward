@@ -58,7 +58,15 @@ class PF_Comments extends PF_Module {
 
 	function get_editorial_comment_count( $id ) {
 		global $wpdb;
-		$comment_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_type = %s", $id, self::comment_type ) );
+		$query = new \WP_Comment_Query();
+		$comment_count = $query->query(
+			array(
+				'count' => true,
+				'post_id' => $id,
+				'type' => self::comment_type,
+				'status' => 'any',
+			)
+		);
 		if ( ! $comment_count ) {
 			$comment_count = 0; }
 		return $comment_count;
@@ -121,7 +129,7 @@ class PF_Comments extends PF_Module {
 		echo '<script>
 		PFEditorialCommentReply.init();
 		</script>';
-		$comments_allowed = get_option( 'pf_feature_comments_access', pf_get_defining_capability_by_role( 'editor' ) );
+		$comments_allowed = get_option( 'pf_feature_comments_access', pf_get_defining_capability_by_role( 'contributor' ) );
 
 		if ( ! (current_user_can( $comments_allowed )) ) {
 
@@ -177,7 +185,7 @@ class PF_Comments extends PF_Module {
 	 */
 	function the_comment_form( $id_for_comments ) {
 		// global $post;
-		$comments_allowed = get_option( 'pf_feature_comments_access', pf_get_defining_capability_by_role( 'editor' ) );
+		$comments_allowed = get_option( 'pf_feature_comments_access', pf_get_defining_capability_by_role( 'contributor' ) );
 
 		if ( (current_user_can( $comments_allowed )) ) {
 
@@ -231,7 +239,7 @@ class PF_Comments extends PF_Module {
 		$actions = array();
 
 		$actions_string = '';
-		$comments_allowed = get_option( 'pf_feature_comments_access', pf_get_defining_capability_by_role( 'editor' ) );
+		$comments_allowed = get_option( 'pf_feature_comments_access', pf_get_defining_capability_by_role( 'contributor' ) );
 		// Comments can only be added by users that can edit the post
 		if ( current_user_can( $comments_allowed, $comment->comment_post_ID ) ) {
 			$actions['reply'] = '<a onclick="PFEditorialCommentReply.open(\'' . $comment->comment_ID . '\',\'' . $comment->comment_post_ID . '\');return false;" class="vim-r hide-if-no-js" title="' . __( 'Reply to this comment', 'pf' ) . '" href="#">' . __( 'Reply', 'pf' ) . '</a>';
@@ -282,7 +290,7 @@ class PF_Comments extends PF_Module {
 
 		// Get user info
 	  	$current_user = wp_get_current_user();
-		$comments_allowed = get_option( 'pf_feature_comments_access', pf_get_defining_capability_by_role( 'editor' ) );
+		$comments_allowed = get_option( 'pf_feature_comments_access', pf_get_defining_capability_by_role( 'contributor' ) );
 	  	// Set up comment data
 		$post_id = absint( $_POST['post_id'] );
 		$parent = absint( $_POST['parent'] );
